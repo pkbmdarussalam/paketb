@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengumuman Kelulusan PKBM</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      background-color: #f0f2f5;
+      color: #333;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 500px;
+      margin: 20px auto;
+      border: 1px solid #ddd;
+      padding: 25px;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      box-sizing: border-box;
+    }
+
+    .logo-img {
+      width: 90px;
+      height: auto;
+      display: block;
+      margin: 0 auto 15px auto;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      line-height: 1.4;
+      margin-bottom: 5px;
+    }
+
+    input {
+      padding: 12px;
+      width: 100%;
+      max-width: 300px;
+      margin-top: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    button {
+      padding: 12px 30px;
+      margin-top: 15px;
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      max-width: 300px;
+      font-weight: bold;
+    }
+
+    hr {
+      margin: 20px 0;
+      border: 0;
+      border-top: 1px solid #eee;
+    }
+
+    #hasil {
+      margin-top: 15px;
+    }
+
+    .box-hasil {
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #ccc;
+      background-color: #fff;
+    }
+
+    .nama-siswa {
+      font-size: 18px;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+
+    .status-lulus {
+      font-size: 22px;
+      color: #27ae60;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .status-gagal {
+      font-size: 22px;
+      color: #e74c3c;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .error-msg {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <img src="pkbm.png" alt="Logo PKBM" class="logo-img">
+
+  <h3>
+    Pengumuman Kelulusan Paket B<br>
+    PKBM Darussalam TP. 2025/2026<br>
+    <small style="color: #777;">Kota Pekalongan</small>
+  </h3>
+
+  <hr>
+
+  <p>Selasa, 2 Juni 2026</p>
+
+  <p><b>Assalamualaikum wr.wb.</b></p>
+
+  <p>
+    Masukkan:
+    <br>
+    1. Tanggal Lahir (ddmmyyyy)
+
+  </p>
+
+  <!-- FORM TANGGAL LAHIR -->
+  <input
+    type="text"
+    id="tglInput"
+    placeholder="Tanggal Lahir (contoh: 01062010)"
+    maxlength="8"
+  >
+  <br><br>
+ 2. MASUKAN NISN <br>
+  <!-- FORM NISN -->
+  <input
+    type="text"
+    id="nisnInput"
+    placeholder="NISN"
+    onkeypress="if(event.key==='Enter') cek()"
+  >
+
+  <br>
+
+  <button onclick="cek()">Cek Hasil</button>
+
+  <hr>
+
+  <div id="hasil"></div>
+
+</div>
+
+
+<script>
+
+let dataSiswa = [];
+
+// Ambil data dari file txt
+fetch('data2.txt')
+.then(res => res.text())
+.then(text => {
+
+  // Pisahkan per baris
+  let baris = text.trim().split('\n');
+
+  // Ambil data CSV
+  dataSiswa = baris.map(item => {
+
+    let kolom = item.split(',');
+
+    return {
+
+      nisn: kolom[0]
+        ? kolom[0].trim()
+        : "",
+
+      tgl: kolom[1]
+        ? kolom[1].trim()
+        : "",
+
+      nama: kolom[2]
+        ? kolom[2].trim()
+        : "",
+
+      ket: kolom[3]
+        ? kolom[3].trim()
+        : ""
+
+    };
+
+  });
+
+})
+.catch(err => {
+
+  console.error("Gagal load file:", err);
+
+});
+
+function cek() {
+
+  let tgl = document
+    .getElementById("tglInput")
+    .value
+    .trim();
+
+  let nisn = document
+    .getElementById("nisnInput")
+    .value
+    .trim();
+
+  let display = document
+    .getElementById("hasil");
+
+  if (!tgl || !nisn) {
+
+    display.innerHTML =
+      "<span class='error-msg'>Tanggal lahir dan NISN wajib diisi!</span>";
+
+    return;
+
+  }
+
+  // Cari berdasarkan NISN + tanggal lahir
+  let siswa = dataSiswa.find(s =>
+
+    s.nisn === nisn &&
+    s.tgl === tgl
+
+  );
+
+  if (siswa) {
+
+    let isLulus =
+      siswa.ket.toUpperCase() === "LULUS";
+
+    let warnaStatus = isLulus
+      ? "status-lulus"
+      : "status-gagal";
+
+    let warnaBorder = isLulus
+      ? "#27ae60"
+      : "#e74c3c";
+
+    let backgroundKotak = isLulus
+      ? "#f9fffb"
+      : "#fff9f9";
+
+    display.innerHTML = `
+
+      <div class="box-hasil"
+           style="
+             border-color:${warnaBorder};
+             background-color:${backgroundKotak};
+           ">
+
+        <span class="nama-siswa">
+          ${siswa.nama}
+        </span>
+
+        <span class="${warnaStatus}">
+          ${siswa.ket}
+        </span>
+
+      </div>
+
+    `;
+
+  } else {
+
+    display.innerHTML =
+      "<span class='error-msg'>Data tidak ditemukan.</span>";
+
+  }
+
+}
+
+</script>
+
+
+
+
+</body>
+</html>
+
